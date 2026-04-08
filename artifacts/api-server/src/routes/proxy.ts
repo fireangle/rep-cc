@@ -389,8 +389,14 @@ function sanitizeContentBlock(block: unknown): unknown {
   return out;
 }
 
+const UNSUPPORTED_ANTHROPIC_FIELDS = ["output_config"] as const;
+
 function sanitizeAnthropicBody(body: Record<string, unknown>): Record<string, unknown> {
   const out = { ...body };
+
+  for (const field of UNSUPPORTED_ANTHROPIC_FIELDS) {
+    delete out[field];
+  }
 
   if (Array.isArray(out.system)) {
     out.system = (out.system as unknown[]).map(sanitizeContentBlock);
