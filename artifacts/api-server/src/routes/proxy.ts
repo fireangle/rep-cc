@@ -373,6 +373,41 @@ router.post("/chat/completions", async (req: Request, res: Response) => {
   }
 });
 
+function stripUnsupportedCacheControlFields(cc: unknown): unknown {
+  if (!cc || typeof cc !== "object") return cc;
+  const { type } = cc as Record<string, unknown>;
+  return { type };
+}
+
+function sanitizeContentBlock(block: unknown): unknown {
+  if (!block || typeof block !== "object") return block;
+  const b = block as Record<string, unknown>;
+  const out: Record<string, unknown> = { ...b };
+  if (out.cache_control !== undefined) {
+    out.cache_control = stripUnsupportedCacheControlFields(out.cache_control);
+  }
+  return out;
+}
+
+function sanitizeAnthropicBody(body: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...body };
+
+  if (Array.isArray(out.system)) {
+    out.system = (out.system as unknown[]).map(sanitizeContentBlock);
+  }
+
+  if (Array.isArray(out.messages)) {
+    out.messages = (out.messages as unknown[]).map((msg) => {
+      if (!msg || typeof msg !== "object") return msg;
+      const m = msg as Record<string, unknown>;
+      if (!Array.isArray(m.content)) return m;
+      return { ...m, content: m.content.map(sanitizeContentBlock) };
+    });
+  }
+
+  return out;
+}
+
 function forwardError(err: unknown, res: Response, context: string): void {
   logger.error({ err }, `Proxy error in ${context}`);
   if (res.headersSent) return;
@@ -402,10 +437,10 @@ router.post("/messages", async (req: Request, res: Response) => {
     return;
   }
 
-  const normalizedBody = {
+  const normalizedBody = sanitizeAnthropicBody({
     ...body,
     max_tokens: body.max_tokens ?? 8192,
-  };
+  });
 
   try {
     if (isAnthropicModel(model)) {
