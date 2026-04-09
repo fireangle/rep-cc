@@ -1,11 +1,11 @@
 modules = ["go-1.25"]
 
-run = "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy . && PORT=8000 ./proxy"
+run = "cd /home/runner/workspace/artifacts/go-proxy && CGO_ENABLED=0 go build -o proxy . && PORT=8000 ./proxy"
 
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy . && PORT=8000 ./proxy"]
+run = "cd /home/runner/workspace/artifacts/go-proxy && CGO_ENABLED=0 go build -o proxy . && PORT=8000 ./proxy"
 
 [workflows]
 
@@ -14,13 +14,5 @@ stack = "PNPM_WORKSPACE"
 expertMode = true
 
 [[ports]]
-localPort = 5173
-externalPort = 5173
-
-[[ports]]
 localPort = 8000
 externalPort = 80
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
