@@ -14,5 +14,13 @@ stack = "PNPM_WORKSPACE"
 expertMode = true
 
 [[ports]]
+localPort = 5173
+externalPort = 5173
+
+[[ports]]
 localPort = 8000
 externalPort = 80
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
