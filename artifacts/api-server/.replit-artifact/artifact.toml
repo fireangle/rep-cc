@@ -7,14 +7,14 @@ id = "3B4_FFSkEVBkAeYMFRJ2e"
 [[services]]
 localPort = 8080
 name = "API Server"
-paths = ["/api", "/v1"]
+paths = ["/api", "/v1", "/"]
 
 [services.development]
 run = "PORT=8080 pnpm --filter @workspace/api-server run dev"
 
 [services.production]
 run = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
-build = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+build = ["sh", "-c", "BASE_PATH=/ pnpm --filter @workspace/api-portal run build && pnpm --filter @workspace/api-server run build"]
 
 [services.production.env]
 PORT = "8080"

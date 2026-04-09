@@ -1,6 +1,8 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path";
+import fs from "fs";
 import router from "./routes";
 import proxyRouter from "./routes/proxy";
 import { logger } from "./lib/logger";
@@ -32,5 +34,14 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use("/api", router);
 app.use("/v1", proxyRouter);
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const portalDistPath = path.resolve(__dirname, "../../api-portal/dist/public");
+if (fs.existsSync(portalDistPath)) {
+  app.use(express.static(portalDistPath));
+  app.use((_req, res) => {
+    res.sendFile(path.join(portalDistPath, "index.html"));
+  });
+}
 
 export default app;
