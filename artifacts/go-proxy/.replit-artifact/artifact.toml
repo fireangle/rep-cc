@@ -12,7 +12,7 @@ paths = ["/"]
 run = "cd /home/runner/workspace/artifacts/go-proxy && PORT=8000 go run ."
 
 [services.production]
-run = "cd /home/runner/workspace/artifacts/go-proxy && ./proxy"
+run = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && exec ./proxy"]
 build = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy ."]
 
 [services.production.env]
