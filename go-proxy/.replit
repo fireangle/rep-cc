@@ -1,0 +1,12 @@
+modules = ["go-1.22"]
+
+run = ["go", "run", "."]
+
+[deployment]
+run = ["./proxy"]
+deploymentTarget = "autoscale"
+build = ["go", "build", "-o", "proxy", "."]
+
+[[ports]]
+localPort = 8080
+externalPort = 80
