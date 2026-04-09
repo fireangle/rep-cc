@@ -9,11 +9,11 @@ name = "Go Proxy"
 paths = ["/"]
 
 [services.development]
-run = "pnpm --filter @workspace/go-proxy run dev"
+run = "cd /home/runner/workspace/artifacts/go-proxy && PORT=8000 go run ."
 
 [services.production]
-run = "pnpm --filter @workspace/go-proxy run start"
-build = "pnpm --filter @workspace/go-proxy run build"
+run = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && exec ./proxy"]
+build = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy ."]
 
 [services.production.env]
 PORT = "8000"

@@ -6,41 +6,57 @@ A free AI reverse proxy written in Go that exposes OpenAI and Anthropic API form
 
 ## Stack
 
-- **Language**: Go 1.22+
-- **Runtime**: Single binary, no dependencies
+- **Language**: Go 1.22+ (pure Go, no Node.js)
+- **Runtime**: Single binary, no external dependencies
+
+## Project Structure
+
+```
+artifacts/go-proxy/
+  main.go       — Entry point, routing, auth middleware
+  proxy.go      — Request forwarding logic
+  translate.go  — Format translation (OpenAI ↔ Anthropic)
+  types.go      — Shared type definitions
+  go.mod        — Go module definition
+```
 
 ## Proxy Endpoints
 
-All proxy endpoints require `Authorization: Bearer <PROXY_API_KEY>` or `x-api-key` header.
+All endpoints require `Authorization: Bearer <PROXY_API_KEY>` or `x-api-key` header, except `/health`.
 
-- `GET /health` — health check (no auth required)
-- `GET /v1/models` — list all available models
-- `POST /v1/chat/completions` — OpenAI-compatible endpoint (streaming + tool calls)
-- `POST /v1/messages` — Anthropic Messages API native format (streaming + tool calls)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check (no auth) |
+| GET | `/v1/models` | List all available models |
+| POST | `/v1/chat/completions` | OpenAI-compatible chat (streaming + tools) |
+| POST | `/v1/messages` | Anthropic Messages API (streaming + tools) |
 
 ## Supported Models
 
-**OpenAI:** `gpt-5.2`, `gpt-5-mini`, `gpt-5-nano`, `o4-mini`, `o3`
+**OpenAI:** `gpt-5.2`, `gpt-5-mini`, `gpt-5-nano`, `o4-mini`, `o3`  
 **Anthropic:** `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5`
 
 ## Secrets / Environment Variables
 
-- `PROXY_API_KEY` — Required. A secret key clients must send to authenticate with the proxy.
-- `AI_INTEGRATIONS_OPENAI_BASE_URL` / `AI_INTEGRATIONS_OPENAI_API_KEY` — Auto-configured by Replit AI Integrations.
-- `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` / `AI_INTEGRATIONS_ANTHROPIC_API_KEY` — Auto-configured by Replit AI Integrations.
-- `PORT` — Port to listen on (default: 8080).
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PROXY_API_KEY` | Yes | Secret key clients must send to authenticate |
+| `AI_INTEGRATIONS_OPENAI_BASE_URL` | Auto | Set by Replit OpenAI integration |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | Auto | Set by Replit OpenAI integration |
+| `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` | Auto | Set by Replit Anthropic integration |
+| `AI_INTEGRATIONS_ANTHROPIC_API_KEY` | Auto | Set by Replit Anthropic integration |
+| `PORT` | Auto | Port to listen on (default: 8080) |
 
-## Files
+## Deployment
 
-- `artifacts/go-proxy/main.go` — Entry point, routing, auth middleware
-- `artifacts/go-proxy/proxy.go` — Request forwarding logic
-- `artifacts/go-proxy/translate.go` — Format translation (OpenAI ↔ Anthropic)
-- `artifacts/go-proxy/types.go` — Shared type definitions
+- **Build**: `go build -o proxy .`
+- **Run**: `./proxy`
+- **Health check**: `GET /health`
 
 ## Usage Example
 
 ```bash
-# Health check
+# Health check (no auth)
 curl https://your-domain.replit.app/health
 
 # List models
