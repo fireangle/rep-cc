@@ -3,8 +3,8 @@ modules = ["go-1.25"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && exec ./proxy"]
-build = ["sh", "-c", "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy ."]
+run = "cd /home/runner/workspace/artifacts/go-proxy && exec ./proxy"
+build = "cd /home/runner/workspace/artifacts/go-proxy && go build -o proxy ."
 
 [workflows]
 
