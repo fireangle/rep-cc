@@ -1,0 +1,22 @@
+kind = "api"
+previewPath = "/go-proxy"
+title = "Go Proxy"
+version = "1.0.0"
+
+[[services]]
+localPort = 8000
+name = "Go Proxy"
+paths = ["/go-proxy"]
+
+[services.development]
+run = "cd artifacts/go-proxy && PORT=8000 go run ."
+
+[services.production]
+run = ["artifacts/go-proxy/proxy"]
+build = ["sh", "-c", "cd artifacts/go-proxy && go build -o proxy ."]
+
+[services.production.env]
+PORT = "8000"
+
+[services.production.health.startup]
+path = "/health"

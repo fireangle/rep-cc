@@ -21,6 +21,7 @@ A free AI reverse proxy that exposes both OpenAI and Anthropic API formats, back
 
 - **api-portal** (previewPath: `/`) — React + Vite frontend portal showing connection details, endpoints, models, and setup guide
 - **api-server** (previewPath: `/api`, `/v1`) — Express 5 backend serving both the REST API and the AI proxy routes
+- **go-proxy** (previewPath: `/go-proxy`) — Go reimplementation of the proxy server for performance comparison; serves the same `/v1/` endpoints on port 8000
 
 ## Proxy Endpoints
 
