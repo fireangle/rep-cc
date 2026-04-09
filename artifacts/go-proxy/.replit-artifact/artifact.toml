@@ -1,12 +1,12 @@
 kind = "api"
-previewPath = "/go-proxy"
+previewPath = "/"
 title = "Go Proxy"
 version = "1.0.0"
 
 [[services]]
 localPort = 8000
 name = "Go Proxy"
-paths = ["/go-proxy", "/v1"]
+paths = ["/"]
 
 [services.development]
 run = "cd /home/runner/workspace/artifacts/go-proxy && PORT=8000 go run ."

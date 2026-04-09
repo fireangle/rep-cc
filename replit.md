@@ -1,35 +1,22 @@
-# Free AI API Proxy (free-sclaude)
+# Free AI API Proxy (Go)
 
 ## Overview
 
-A free AI reverse proxy that exposes both OpenAI and Anthropic API formats, backed by Replit AI Integrations. No personal API keys needed — usage is billed to your Replit credits. Protect your proxy with a `PROXY_API_KEY` secret.
+A free AI reverse proxy written in Go that exposes OpenAI and Anthropic API formats, backed by Replit AI Integrations. No personal API keys needed — usage is billed to your Replit credits. Protect your proxy with a `PROXY_API_KEY` secret.
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
-- **AI**: Replit AI Integrations (OpenAI + Anthropic, no personal keys needed)
-
-## Artifacts
-
-- **api-portal** (previewPath: `/`) — React + Vite frontend portal showing connection details, endpoints, models, and setup guide
-- **api-server** (previewPath: `/api`, `/v1`) — Express 5 backend serving both the REST API and the AI proxy routes
-- **go-proxy** (previewPath: `/go-proxy`) — Go reimplementation of the proxy server for performance comparison; serves the same `/v1/` endpoints on port 8000
+- **Language**: Go 1.22+
+- **Runtime**: Single binary, no dependencies
 
 ## Proxy Endpoints
 
-All proxy endpoints are under `/v1/` and require `Authorization: Bearer <PROXY_API_KEY>` or `x-api-key` header.
+All proxy endpoints require `Authorization: Bearer <PROXY_API_KEY>` or `x-api-key` header.
 
-- `GET /v1/models` — list all available models (OpenAI + Anthropic)
-- `POST /v1/chat/completions` — OpenAI-compatible endpoint, supports all models (streaming + tool calls)
-- `POST /v1/messages` — Anthropic Messages API native format, supports all models (streaming + tool calls)
+- `GET /health` — health check (no auth required)
+- `GET /v1/models` — list all available models
+- `POST /v1/chat/completions` — OpenAI-compatible endpoint (streaming + tool calls)
+- `POST /v1/messages` — Anthropic Messages API native format (streaming + tool calls)
 
 ## Supported Models
 
@@ -41,20 +28,34 @@ All proxy endpoints are under `/v1/` and require `Authorization: Bearer <PROXY_A
 - `PROXY_API_KEY` — Required. A secret key clients must send to authenticate with the proxy.
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` / `AI_INTEGRATIONS_OPENAI_API_KEY` — Auto-configured by Replit AI Integrations.
 - `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` / `AI_INTEGRATIONS_ANTHROPIC_API_KEY` — Auto-configured by Replit AI Integrations.
+- `PORT` — Port to listen on (default: 8080).
 
-## Key Commands
+## Files
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
+- `artifacts/go-proxy/main.go` — Entry point, routing, auth middleware
+- `artifacts/go-proxy/proxy.go` — Request forwarding logic
+- `artifacts/go-proxy/translate.go` — Format translation (OpenAI ↔ Anthropic)
+- `artifacts/go-proxy/types.go` — Shared type definitions
 
-## CherryStudio Setup
+## Usage Example
 
-1. Settings → Model Providers → add new provider
-2. Select "OpenAI" for `/v1/chat/completions` or "Anthropic" for `/v1/messages`
-3. Set Base URL to your deployment domain and API Key to your `PROXY_API_KEY`
-4. Pick any model and start chatting
+```bash
+# Health check
+curl https://your-domain.replit.app/health
 
-See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+# List models
+curl https://your-domain.replit.app/v1/models \
+  -H "Authorization: Bearer YOUR_PROXY_API_KEY"
+
+# Chat (OpenAI format)
+curl https://your-domain.replit.app/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_PROXY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-5.2","messages":[{"role":"user","content":"Hello"}]}'
+
+# Chat (Anthropic format)
+curl https://your-domain.replit.app/v1/messages \
+  -H "x-api-key: YOUR_PROXY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":1024,"messages":[{"role":"user","content":"Hello"}]}'
+```
